@@ -6,36 +6,71 @@
     <title>YUTA CASINO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background-color: #0f172a; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; text-align: center; }
-        .header { font-size: 24px; font-weight: bold; color: #f59e0b; margin-bottom: 20px; }
-        .card { background: #1e293b; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); margin-bottom: 20px; }
-        .btn { background: #f59e0b; color: #000; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 10px; margin: 10px; cursor: pointer; width: 100%; }
-        .btn:active { background: #d97706; }
-        .balance { font-size: 20px; color: #10b981; margin-bottom: 15px; font-weight: bold; }
-        .slots { display: flex; justify-content: center; font-size: 50px; margin: 20px 0; letter-spacing: 10px; }
+        body {
+            background-color: #0f172a;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 20px; text-align: center;
+        }
+        .header { font-size: 28px; font-weight: 900; color: #f59e0b; margin-bottom: 10px; text-shadow: 0 0 10px rgba(245,158,11,0.5); }
+        .sub { color: #94a3b8; margin-bottom: 20px; }
+        .card {
+            background: #1e293b; padding: 20px; border-radius: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+        .btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff; border: none; padding: 15px 20px;
+            font-size: 18px; font-weight: bold; border-radius: 12px;
+            margin-top: 15px; cursor: pointer; width: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.95); }
+        .result { font-size: 40px; margin: 20px 0; letter-spacing: 5px; }
+        .bet-input {
+            width: 60px; padding: 10px; font-size: 18px; text-align: center;
+            border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff;
+        }
     </style>
 </head>
 <body>
     <div class="header">🎰 YUTA CASINO</div>
-    <div class="balance">Balance: <span id="balance">0</span> Points</div>
+    <div class="sub">Feeling lucky today?</div>
     
     <div class="card">
-        <h3>🎲 Dice Game</h3>
-        <div class="slots" id="dice-result">🎲 🎲</div>
-        <button class="btn" onclick="playGame('dice')">Roll Dice (Bet 1 Point)</button>
+        <h3>🎲 Dice Roll</h3>
+        <p>Choose 1-6. Win x5!</p>
+        <div class="result" id="dice-result">🎲</div>
+        <div>
+            <span style="font-size:16px;">Bet: </span>
+            <input type="number" id="dice-bet" class="bet-input" value="1" min="1">
+        </div>
+        <button class="btn" onclick="playGame('dice', parseInt(document.getElementById('dice-bet').value))">Roll Dice</button>
+    </div>
+
+    <div class="card">
+        <h3>🪙 Coin Flip</h3>
+        <p>Win x2 if correct!</p>
+        <div class="result" id="coin-result">🪙</div>
+        <div>
+            <span style="font-size:16px;">Bet: </span>
+            <input type="number" id="coin-bet" class="bet-input" value="1" min="1">
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn" style="background: #ef4444;" onclick="playGame('coin_heads', parseInt(document.getElementById('coin-bet').value))">Heads</button>
+            <button class="btn" style="background: #3b82f6;" onclick="playGame('coin_tails', parseInt(document.getElementById('coin-bet').value))">Tails</button>
+        </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        
-        // Get data from bot if available
-        let userBalance = parseInt(tg.initDataUnsafe?.user?.id) ? 10 : 0; // Placeholder
-        document.getElementById('balance').innerText = userBalance;
+        tg.ready();
 
-        function playGame(gameType) {
-            if (userBalance < 1) {
-                tg.showAlert("Insufficient points!");
+        function playGame(gameType, bet) {
+            if (!bet || bet < 1) {
+                tg.showAlert("Invalid bet amount!");
                 return;
             }
             
@@ -43,8 +78,10 @@
             tg.sendData(JSON.stringify({
                 action: "play",
                 game: gameType,
-                bet: 1
+                bet: bet
             }));
+            
+            tg.close();
         }
     </script>
 </body>
